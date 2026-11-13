@@ -59,12 +59,12 @@ test('5. Historical candle integrity and chronological out-of-sample split', () 
 
 test('browser simulator parses and consumes the shared tested primitives', () => {
   assert.ok(script.length>1000);
-  assert.doesNotThrow(()=>new Function(script));
+  const executable=script.replace(/^import .*;\\s*/m,''); assert.doesNotThrow(()=>new Function(executable));
   for(const name of ['ema','sma','rsi','atr','sizePosition','resolveBarExit','validateCandles']) assert.match(script,new RegExp('\\b'+name+'\\b'));
 });
 
 test('simulator uses public market-data endpoints only', () => {
-  assert.match(html,/api\\.bybit\\.com/);
+  assert.ok(html.includes('api.bybit.com'));
   assert.ok(html.includes('v5/market/kline'));
   assert.ok(html.includes('v5/market/tickers'));
   assert.ok(html.includes('v5/market/instruments-info'));
