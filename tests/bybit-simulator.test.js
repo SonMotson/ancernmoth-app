@@ -10,7 +10,7 @@ test('1. Indicator calculations match hand-verified reference values', () => {
   const e=ema([10,20,30],2); assert.equal(e[0],10); assert.ok(Math.abs(e[1]-16.6666666667)<1e-9); assert.ok(Math.abs(e[2]-25.5555555556)<1e-9);
   assert.deepEqual(sma([1,2,3,4], 3), [null,null,2,3]);
   assert.equal(rsi(Array.from({length:15},(_,i)=>i+1),14)[14],100);
-  assert.deepEqual(atr([{h:11,l:9,c:10},{h:13,l:10,c:12},{h:14,l:11,c:13}],2),[null,3,3]);
+  assert.deepEqual(atr([{h:11,l:9,c:10},{h:13,l:10,c:12},{h:14,l:11,c:13}],2),[null,2.5,3]);
 });
 
 test('2. Position sizing includes stop distance, both-side fees and slippage', () => {
