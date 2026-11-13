@@ -1,33 +1,33 @@
 # Setup and connection
 
-## What this integration can and cannot read
+## Product and account limitations
 
-Yellow Card's current developer API is primarily a partner/business payment and stablecoin infrastructure API. The documented read endpoints implemented here are:
+Yellow Card's current API is a partner/business payments and stablecoin infrastructure API. It is not a general-purpose personal retail BTC exchange API. The read endpoints in this starter are:
 - GET /business/channels
 - GET /business/sends/
 - GET /business/receives/
 
-These return partner payment rails and partner transaction records. They do **not** establish that a personal Yellow Card retail account can be connected, and they do not provide a verified BTC spot wallet balance endpoint. Do not interpret USDT/USDC or fiat payment records as BTC holdings.
+They provide partner payment rails and partner receive/send records. They do **not** establish access to a personal retail account, nor do they expose a verified BTC spot-wallet balance endpoint. The monitor never infers BTC holdings from fiat, USDT or USDC records.
 
-## Partner access
+## Partner onboarding
 
-Yellow Card's official onboarding process requires an introductory call, pre-integration form, KYB documentation, AML review, legal agreement and then sandbox credentials. Ask Yellow Card whether your intended use case and account are eligible.
+Yellow Card requires an introductory call, pre-integration form, KYB documentation, AML review, legal agreement and then sandbox credentials. Ask Yellow Card to confirm whether your use case and entity are eligible.
 
 Official onboarding: https://docs.yellowcard.engineering/docs/getting-started-api
 
-## Credentials
+## Credentials and protection
 
-1. Complete partner onboarding.
-2. Obtain sandbox API key and secret.
-3. Configure the Worker secrets YC_API_KEY and YC_API_SECRET in Cloudflare. Never put them in Git, browser code, or chat.
-4. Keep APP_MODE=demo until credentials are configured; then set APP_MODE=sandbox for sandbox calls.
-5. The API key must have API read permission only. Do not grant API write.
-6. Production remains locked in code until partner sign-off, static IP allowlisting, and an independent security review.
+1. Complete partner onboarding and receive sandbox API credentials.
+2. Configure Cloudflare Worker secrets YC_API_KEY and YC_API_SECRET. Never put secrets in Git, browser code, or chat.
+3. Set DASHBOARD_TOKEN as a long random Worker secret. All Yellow Card data routes require `Authorization: Bearer <DASHBOARD_TOKEN>`.
+4. Keep APP_MODE=demo until credentials and dashboard authentication are configured; then set APP_MODE=sandbox.
+5. The Yellow Card API key must have API read permission only. Do not grant API write.
+6. Production remains locked until Yellow Card signs off the sandbox integration, confirms the allowed scope, static IP allowlisting is completed, and the deployment receives an independent security review.
 
 ## Safety invariants
 
-This Worker rejects every non-GET request. There are no endpoints for trading, orders, sending, receiving, refunds, settlement, transfers, wallet creation or withdrawals. No live trading code is present. BTC price is retrieved from public market data and is explicitly separate from Yellow Card account records.
+The Worker rejects every non-GET request. There are no endpoints for trading, orders, sending, receiving, refunds, settlement, transfers, wallet creation or withdrawals. No live trading code is present. BTC price comes from public market data and is explicitly separate from Yellow Card account records.
 
-## Authentication
+## Authentication implementation
 
-The implementation follows Yellow Card's current authentication documentation: X-YC-Timestamp is ISO-8601; Authorization uses YcHmacV1; signature message is timestamp + path (without query string) + uppercase method. For GET, no body hash is appended. See https://docs.yellowcard.engineering/docs/authentication-api
+The implementation follows the current Yellow Card authentication documentation: X-YC-Timestamp is ISO-8601; Authorization uses YcHmacV1; the GET signature message is timestamp + path (excluding query string) + uppercase method. See https://docs.yellowcard.engineering/docs/authentication-api
