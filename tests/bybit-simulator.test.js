@@ -59,7 +59,7 @@ test('5. Historical candle integrity and chronological out-of-sample split', () 
 
 test('browser simulator parses and consumes the shared tested primitives', () => {
   assert.ok(script.length>1000);
-  const executable=script.split('\n').slice(1).join('\n'); assert.doesNotThrow(()=>new Function(executable));
+  const executable=script.trimStart().split('\n').slice(1).join('\n'); assert.doesNotThrow(()=>new Function(executable));
   for(const name of ['ema','sma','rsi','atr','sizePosition','resolveBarExit','validateCandles']) assert.match(script,new RegExp('\\b'+name+'\\b'));
 });
 
