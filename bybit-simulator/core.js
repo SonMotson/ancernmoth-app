@@ -61,7 +61,8 @@ export function validateCandles(rows, intervalMs=null) {
     if(![x.t,x.o,x.h,x.l,x.c,x.v].every(Number.isFinite))issues.push({index:i,issue:'non_finite'});
     if(x.h<x.l||x.h<Math.max(x.o,x.c)||x.l>Math.min(x.o,x.c))issues.push({index:i,issue:'invalid_ohlc'});
     if(x.v<0)issues.push({index:i,issue:'negative_volume'});
-    if(i&&x.t<=rows[i-1].t)issues.push({index:i,issue:'non_increasing_timestamp'});\n    if(i&&intervalMs&&x.t-rows[i-1].t!==intervalMs)issues.push({index:i,issue:'candle_gap_or_duplicate'});
+    if(i&&x.t<=rows[i-1].t)issues.push({index:i,issue:'non_increasing_timestamp'});
+    if(i&&intervalMs&&x.t-rows[i-1].t!==intervalMs)issues.push({index:i,issue:'candle_gap_or_duplicate'});
   }
   return issues;
 }
