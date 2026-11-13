@@ -1,14 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import vm from 'node:vm';
 
 const html = readFileSync(new URL('../bybit-simulator/index.html', import.meta.url), 'utf8');
 const script = html.split('<script>')[1]?.split('</script>')[0] ?? '';
 
 test('inline browser JavaScript parses', () => {
   assert.ok(script.length > 1000, 'expected simulator script');
-  assert.doesNotThrow(() => new vm.Script(script));
+  assert.doesNotThrow(() => new Function(script));
 });
 
 test('simulator uses public market-data endpoints only', () => {
