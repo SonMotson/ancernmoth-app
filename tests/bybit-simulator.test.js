@@ -68,7 +68,7 @@ test('simulator uses public market-data endpoints only', () => {
   assert.ok(html.includes('v5/market/kline'));
   assert.ok(html.includes('v5/market/tickers'));
   assert.ok(html.includes('v5/market/instruments-info'));
-  assert.doesNotMatch(script,/v5\\/(?:order|position|account|asset|withdraw|transfer)/i);
+  assert.equal(['v5/order','v5/position','v5/account','v5/asset','v5/withdraw','v5/transfer'].some(path=>script.includes(path)),false);
   assert.doesNotMatch(script,/apiKey|apiSecret|X-BAPI-API-KEY|Authorization/i);
 });
 
