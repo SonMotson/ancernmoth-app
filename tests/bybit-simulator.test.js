@@ -71,3 +71,5 @@ test('simulator uses public market-data endpoints only', () => {
   assert.doesNotMatch(script,/v5\\/(?:order|position|account|asset|withdraw|transfer)/i);
   assert.doesNotMatch(script,/apiKey|apiSecret|X-BAPI-API-KEY|Authorization/i);
 });
+
+// CI rerun trigger: endpoint assertions use literal path checks.
