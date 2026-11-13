@@ -43,7 +43,7 @@ export function sizePosition({equity,riskPct,entry,stop,feeRate=0,slippage=0,qty
 export function resolveBarExit(bar, position) {
   const stopHit=bar.l<=position.stop, targetHit=bar.h>=position.target;
   if(!stopHit&&!targetHit)return null;
-  return stopHit?{price:position.stop,reason:targetHit?'stop_first_collision':'stop'}:{price:position.target,reason:'target'};
+  return stopHit?{price:bar.o<position.stop?bar.o:position.stop,reason:targetHit?'stop_first_collision':'stop'}:{price:position.target,reason:'target'};
 }
 export function dailyRiskState({day,previousDay,equity,dayStart,realizedLoss,lossStreak,locked}) {
   if(day!==previousDay)return {day,dayStart:equity,realizedLoss:0,lossStreak:0,locked:false};
@@ -54,14 +54,14 @@ export function splitChronologically(rows, trainFraction=.7) {
   const cut=Math.floor(rows.length*trainFraction);
   return {train:rows.slice(0,cut),test:rows.slice(cut)};
 }
-export function validateCandles(rows) {
+export function validateCandles(rows, intervalMs=null) {
   const issues=[];
   for(let i=0;i<rows.length;i++){
     const x=rows[i];
     if(![x.t,x.o,x.h,x.l,x.c,x.v].every(Number.isFinite))issues.push({index:i,issue:'non_finite'});
     if(x.h<x.l||x.h<Math.max(x.o,x.c)||x.l>Math.min(x.o,x.c))issues.push({index:i,issue:'invalid_ohlc'});
     if(x.v<0)issues.push({index:i,issue:'negative_volume'});
-    if(i&&x.t<=rows[i-1].t)issues.push({index:i,issue:'non_increasing_timestamp'});
+    if(i&&x.t<=rows[i-1].t)issues.push({index:i,issue:'non_increasing_timestamp'});\n    if(i&&intervalMs&&x.t-rows[i-1].t!==intervalMs)issues.push({index:i,issue:'candle_gap_or_duplicate'});
   }
   return issues;
 }
