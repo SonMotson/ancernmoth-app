@@ -26,7 +26,8 @@
 <section class="card"><h2>Rules and limitations</h2><ul class="muted"><li>Spot BTCUSDT, long-only, no leverage or shorting.</li><li>1H EMA50 above EMA200 trend filter. A also requires a 15m EMA20 reclaim, RSI14 crossing above 50 and volume above 20-bar average.</li><li>B adds a completed 4H close above 4H EMA200. C requires a pullback into the EMA20–EMA50 zone and bullish recovery. D adds volume at least 1.2× its 20-bar average.</li><li>Stops use the latest confirmed 3-left/3-right pivot low and at least 0.75 ATR14 distance. Entry is next 15m candle open. Target is 2R.</li><li>Same-candle stop/target collision resolves stop-first. Fees and slippage are charged on both sides.</li><li>Exchange minimum notional is $5; trades are skipped if meeting it would breach the risk budget.</li><li>Backtest is a research prototype, not evidence of a profitable edge. Data depth is limited by the selected fetch window; this is not a robust out-of-sample validation.</li></ul></section>
 <div class="foot">Bybit public V5 market endpoints only. Data may be delayed or unavailable. This page stores no credentials and does not call private endpoints.</div>
 </main>
-<script>
+<script type="module">
+import {ema,sma,rsi,atr,sizePosition,resolveBarExit,validateCandles} from "./core.js";
 const BASE='https://api.bybit.com';
 const $=id=>document.getElementById(id);
 let market={m15:[],h1:[],h4:[],instrument:null,ticker:null};
