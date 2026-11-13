@@ -77,7 +77,7 @@ export default {
     if (path) {
       if (!isDashboardAuthorized(request,env)) return json({error:"UNAUTHORIZED"},401);
       if ((env.APP_MODE || "demo")==="demo") return json({connected:false,mode:"demo",message:"No API request made. Configure sandbox credentials after partner approval."});
-      if (env.APP_MODE==="production") return json({error:"PRODUCTION_LOCKED: production requires partner sign-off, IP allowlisting and security review"},423);
+      if (env.APP_MODE!=="sandbox") return json({error:"MODE_BLOCKED: only demo or approved sandbox mode is permitted; production is locked"},423);
       try {
         const data=await yellowCardGet(env,path,url.search);
         return json({connected:true,retrievedAt:new Date().toISOString(),data});
