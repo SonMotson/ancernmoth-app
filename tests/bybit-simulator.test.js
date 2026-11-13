@@ -65,9 +65,9 @@ test('browser simulator parses and consumes the shared tested primitives', () =>
 
 test('simulator uses public market-data endpoints only', () => {
   assert.match(html,/api\\.bybit\\.com/);
-  assert.match(html,/v5\\/market\\/kline/);
-  assert.match(html,/v5\\/market\\/tickers/);
-  assert.match(html,/v5\\/market\\/instruments-info/);
+  assert.ok(html.includes('v5/market/kline'));
+  assert.ok(html.includes('v5/market/tickers'));
+  assert.ok(html.includes('v5/market/instruments-info'));
   assert.doesNotMatch(script,/v5\\/(?:order|position|account|asset|withdraw|transfer)/i);
   assert.doesNotMatch(script,/apiKey|apiSecret|X-BAPI-API-KEY|Authorization/i);
 });
