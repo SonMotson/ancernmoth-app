@@ -46,8 +46,13 @@ export function resolveBarExit(bar, position) {
   return stopHit?{price:bar.o<position.stop?bar.o:position.stop,reason:targetHit?'stop_first_collision':'stop'}:{price:position.target,reason:'target'};
 }
 export function dailyRiskState({day,previousDay,equity,dayStart,realizedLoss,lossStreak,locked}) {
-  if(day!==previousDay)return {day,dayStart:equity,realizedLoss:0,lossStreak:0,locked:false};
+  if(day!==previousDay)return {day,dayStart:equity,realizedLoss:0,lossStreak,locked:lossStreak>=2};
   return {...arguments[0],locked:locked||realizedLoss>=dayStart*.01||lossStreak>=2};
+}
+
+export function completedCandles(rows, intervalMs, now=Date.now()) {
+  if (!Number.isFinite(intervalMs) || intervalMs<=0 || !Number.isFinite(now)) throw new RangeError('invalid candle completion inputs');
+  return rows.filter(c=>Number.isFinite(c.t) && c.t+intervalMs<=now);
 }
 export function splitChronologically(rows, trainFraction=.7) {
   if(!Number.isFinite(trainFraction)||trainFraction<=0||trainFraction>=1)throw new RangeError('trainFraction must be between 0 and 1');
