@@ -76,8 +76,11 @@ test('simulator uses public market-data endpoints only', () => {
 
 
 test('live Bybit public API smoke test: ticker, candles and spot instrument filters', async () => {
-  const base='https://api.bybit.com';
-  const get=async path=>{const response=await fetch(base+path,{signal:AbortSignal.timeout(15000)});assert.equal(response.ok,true,'HTTP '+response.status);const body=await response.json();assert.equal(body.retCode,0,body.retMsg);return body.result;};
+  const hosts=['https://api.bybit.com','https://api.bytick.com'];
+  let base=null,lastError=null;
+  for(const host of hosts){try{const response=await fetch(host+'/v5/market/tickers?category=spot&symbol=BTCUSDT',{signal:AbortSignal.timeout(12000)});if(response.ok){const body=await response.json();if(body.retCode===0&&Number(body.result?.list?.[0]?.lastPrice)>0){base=host;break;}}lastError=host+' HTTP '+response.status;}catch(e){lastError=host+' '+e.message;}}
+  assert.ok(base,'Both official Bybit REST domains unavailable from CI: '+lastError);
+  const get=async path=>{const response=await fetch(base+path,{signal:AbortSignal.timeout(15000)});assert.equal(response.ok,true,'HTTP '+response.status+' at '+base+path);const body=await response.json();assert.equal(body.retCode,0,body.retMsg);return body.result;};
   const [ticker,kline,instruments]=await Promise.all([
     get('/v5/market/tickers?category=spot&symbol=BTCUSDT'),
     get('/v5/market/kline?category=spot&symbol=BTCUSDT&interval=15&limit=5'),
