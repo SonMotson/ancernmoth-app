@@ -73,3 +73,18 @@ test('simulator uses public market-data endpoints only', () => {
 });
 
 // CI rerun trigger: endpoint assertions use literal path checks.
+
+
+test('live Bybit public API smoke test: ticker, candles and spot instrument filters', async () => {
+  const base='https://api.bybit.com';
+  const get=async path=>{const response=await fetch(base+path,{signal:AbortSignal.timeout(15000)});assert.equal(response.ok,true,'HTTP '+response.status);const body=await response.json();assert.equal(body.retCode,0,body.retMsg);return body.result;};
+  const [ticker,kline,instruments]=await Promise.all([
+    get('/v5/market/tickers?category=spot&symbol=BTCUSDT'),
+    get('/v5/market/kline?category=spot&symbol=BTCUSDT&interval=15&limit=5'),
+    get('/v5/market/instruments-info?category=spot&symbol=BTCUSDT')
+  ]);
+  assert.ok(Number(ticker.list[0].lastPrice)>0);
+  assert.ok(kline.list.length>=1);
+  assert.ok(Number(instruments.list[0].priceFilter.tickSize)>0);
+  assert.ok(Number(instruments.list[0].lotSizeFilter.qtyStep)>0);
+});
