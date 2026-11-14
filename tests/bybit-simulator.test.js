@@ -65,7 +65,7 @@ test('browser simulator parses and consumes the shared tested primitives', () =>
 });
 
 test('HTML document ends cleanly with no duplicated script after closing tag', () => {
-  assert.equal((html.match(/<\\/html>/g)||[]).length,1);
+  assert.equal(html.split('</html>').length-1,1);
   assert.ok(html.trimEnd().endsWith('</html>'));
 });
 
