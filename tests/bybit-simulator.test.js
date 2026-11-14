@@ -64,6 +64,11 @@ test('browser simulator parses and consumes the shared tested primitives', () =>
   for(const name of ['ema','sma','rsi','atr','sizePosition','resolveBarExit','validateCandles']) assert.match(script,new RegExp('\\b'+name+'\\b'));
 });
 
+test('HTML document ends cleanly with no duplicated script after closing tag', () => {
+  assert.equal(html.split('</html>').length-1,1);
+  assert.ok(html.trimEnd().endsWith('</html>'));
+});
+
 test('simulator uses public market-data endpoints only', () => {
   assert.ok(html.includes('api.bybit.com'));
   assert.ok(html.includes('v5/market/kline'));
