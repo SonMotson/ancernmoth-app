@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ema, sma, rsi, atr, sizePosition, resolveBarExit, dailyRiskState, splitChronologically, validateCandles } from '../bybit-simulator/core.js';
+import { ema, sma, rsi, atr, sizePosition, resolveBarExit, dailyRiskState, splitChronologically, validateCandles, completedCandles } from '../bybit-simulator/core.js';
 
 const html = readFileSync(new URL('../bybit-simulator/index.html', import.meta.url), 'utf8');
 const script = html.split('<script type="module">')[1]?.split('</script>')[0] ?? '';
@@ -26,7 +26,7 @@ test('2. Position sizing includes stop distance, both-side fees and slippage', (
 
 test('3. Daily loss and consecutive-loss locks trigger at configured thresholds', () => {
   const fresh=dailyRiskState({day:'2026-11-13',previousDay:'2026-11-12',equity:1000,dayStart:900,realizedLoss:90,lossStreak:2,locked:true});
-  assert.deepEqual(fresh,{day:'2026-11-13',dayStart:1000,realizedLoss:0,lossStreak:0,locked:false});
+  assert.deepEqual(fresh,{day:'2026-11-13',dayStart:1000,realizedLoss:0,lossStreak:2,locked:true});
   const daily=dailyRiskState({day:'same',previousDay:'same',equity:900,dayStart:1000,realizedLoss:10,lossStreak:0,locked:false});
   assert.equal(daily.locked,true);
   const streak=dailyRiskState({day:'same',previousDay:'same',equity:990,dayStart:1000,realizedLoss:5,lossStreak:2,locked:false});
@@ -57,11 +57,19 @@ test('5. Historical candle integrity and chronological out-of-sample split', () 
   assert.ok(split.train.at(-1).t<split.test[0].t);
 });
 
+test('completed candle filter excludes the still-forming candle at each timeframe', () => {
+  const rows=[{t:0},{t:900000},{t:1800000},{t:2700000}];
+  assert.deepEqual(completedCandles(rows,900000,3600000),rows);
+  assert.deepEqual(completedCandles(rows,900000,3599999),rows.slice(0,3));
+  assert.deepEqual(completedCandles(rows,3600000,3599999),[]);
+  assert.throws(()=>completedCandles(rows,0,3600000),RangeError);
+});
+
 test('browser simulator parses and consumes the shared tested primitives', () => {
   assert.ok(script.length>1000);
-  assert.match(script,/pageSize=1000/); assert.match(script,/startIndex:cut/); assert.match(script,/stressFees=\[\.1,\.15,\.2\]/);
+  assert.match(script,/pageSize=1000/); assert.match(script,/completedCandles\(/); assert.match(script,/startIndex:cut/); assert.match(script,/stressFees=\[\.1,\.15,\.2\]/);
   const executable=script.trimStart().split('\n').slice(1).join('\n'); assert.doesNotThrow(()=>new Function(executable));
-  for(const name of ['ema','sma','rsi','atr','sizePosition','resolveBarExit','validateCandles']) assert.match(script,new RegExp('\\b'+name+'\\b'));
+  for(const name of ['ema','sma','rsi','atr','sizePosition','resolveBarExit','validateCandles','completedCandles']) assert.match(script,new RegExp('\\b'+name+'\\b'));
 });
 
 test('HTML document ends cleanly with no duplicated script after closing tag', () => {
