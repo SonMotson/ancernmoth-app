@@ -104,5 +104,6 @@ test('live Bybit public API smoke test: ticker, candles and spot instrument filt
   assert.ok(Number(ticker.list[0].lastPrice)>0);
   assert.ok(kline.list.length>=1);
   assert.ok(Number(instruments.list[0].priceFilter.tickSize)>0);
-  assert.ok(Number(instruments.list[0].lotSizeFilter.qtyStep||instruments.list[0].lotSizeFilter.basePrecision)>0);\n  assert.ok(Number(instruments.list[0].lotSizeFilter.minOrderAmt)>0);
+  assert.ok(Number(instruments.list[0].lotSizeFilter.qtyStep||instruments.list[0].lotSizeFilter.basePrecision)>0);
+  assert.ok(Number(instruments.list[0].lotSizeFilter.minOrderAmt)>0);
 });
